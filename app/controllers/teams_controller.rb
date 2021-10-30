@@ -28,6 +28,17 @@ class TeamsController < ApplicationController
       render :new
     end
   end
+  
+   def change_owner
+    @assign = Assign.find(params[:assign])
+    @team = Team.find(params[:id])
+    if @team.update(owner_id: @assign.user.id)
+      ChangeOwnerMailer.change_owner_mail(@assign.user.email).deliver
+      redirect_to team_url, notice: I18n.t('views.messages.leader_permissions_moved!')
+    else
+      redirect_to team_url, notice: I18n.t('views.messages.leader_permissions_transfer failed...')
+    end
+  end
 
   def update
     if @team.update(team_params)
